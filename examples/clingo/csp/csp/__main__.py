@@ -36,7 +36,7 @@ class Application(object):
 
     def print_model(self, model, default_printer):
         """
-        Print the current model and the assignment to integer variables.
+        Print the current model and the assignments of integer variables.
         """
         default_printer()
 
@@ -53,9 +53,12 @@ class Application(object):
 
     def _parse_int(self, config, attr, min_value=None, max_value=None):
         """
-        Parse and set value for integer variable [sup..inf].
+        Parse integer and store result in `config.attr`.
+
+        Here `attr` has to be the name of an attribute. Optionally, a minimum
+        and maximum value can be given for the integer.
         """
-        def __parse(value):
+        def parse(value):
             num = int(value)
             if min_value is not None and num < min_value:
                 return False
@@ -63,13 +66,16 @@ class Application(object):
                 return False
             setattr(config, attr, num)
             return True
-        return __parse
+        return parse
 
     def _parse_bool_thread(self, attr):
         """
-        Parse boolean variable to store in getattr(config,attr) and also getattr(config,attr+"threads").
+        Parse a Boolean and store result in `default_state_config.attr` or, if
+        the value is followed by an integer, in `state_config(i).attr`.
+
+        Here `attr` has to be the name of an attribute.
         """
-        def __parse(value):
+        def parse(value):
             config = self._propagator.config
             l = value.lower().split(",")
             if len(l) > 2:
@@ -89,7 +95,7 @@ class Application(object):
                 self.occurrences[(attr, i)] += 1
                 self.todo.append(lambda: setattr(config.state_config(i), attr, enable))
             return True
-        return __parse
+        return parse
 
     def _flag_str(self, flag):
         return "yes" if flag else "no"
