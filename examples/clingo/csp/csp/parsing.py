@@ -34,7 +34,11 @@ THEORY = """\
     -  : 1, binary, left;
     .. : 0, binary, left
     };
-    &sum/1 : sum_term, {<=,=,!=,<,>,>=}, sum_term, any;
+    &sum/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
+    &count/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
+    &max/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
+    &min/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
+    &in/1 : dom_term, {=:}, sum_term, head;
     &diff/1 : sum_term, {<=}, sum_term, any;
     &minimize/0 : sum_term, directive;
     &maximize/0 : sum_term, directive;
@@ -526,7 +530,8 @@ class HeadBodyTransformer(Transformer):
                 if literal.type == ast.ASTType.Literal and literal.atom.type == ast.ASTType.TheoryAtom:
                     atom = literal.atom
                     term = atom.term
-                    if term.name in ["sum", "diff"] and not term.arguments:
+                    print(term.name)
+                    if term.name in ["sum", "diff", "in", "max", "min", "count"] and not term.arguments:
                         body = copy(body)
                         body.remove(literal)
                         if literal.sign != ast.Sign.Negation:
@@ -623,12 +628,12 @@ class HeadBodyTransformer(Transformer):
         term = atom.term
 
         # ensure multi set semantics for theory atoms
-        if term.name in ["sum", "diff", "distinct", "minimize", "maximize"] and not term.arguments:
+        if term.name in ["sum", "diff", "in", "max", "min", "count", "distinct", "minimize", "maximize"] and not term.arguments:
             atom = unpool_theory_atom(atom)
             atom.elements = self._rewrite_tuples(atom.elements)
 
         # annotate theory atoms in heads and bodies
-        if term.name in ["sum", "diff"] and not term.arguments:
+        if term.name in ["sum", "diff", "in", "max", "min", "count"] and not term.arguments:
             atom.term = ast.Function(term.location, term.name, [ast.Function(term.location, loc, [], False)], False)
 
         return atom
