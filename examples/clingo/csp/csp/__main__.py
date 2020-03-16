@@ -6,7 +6,7 @@ import sys
 from textwrap import dedent
 from collections import OrderedDict
 import clingo
-from csp import transform, THEORY, Propagator
+from csp import transform, THEORY, Propagator, Translator
 
 
 _FALSE = ["0", "no", "false"]
@@ -200,6 +200,7 @@ class Application(object):
             "Verify state consistency [{}]".format(self._flag_str(conf.check_state)),
             conf.check_state)
 
+
     def validate_options(self):
         """
         Validate options.
@@ -242,6 +243,9 @@ class Application(object):
                 transform(b, self._read(path), self.config.shift_constraints)
 
         prg.ground([("base", [])])
+        translator = Translator(prg.theory_atoms, prg.backend())
+        translator.translate()
+        prg.cleanup()
 
         prg.solve(on_statistics=self._on_statistics, on_model=self.on_model)
 

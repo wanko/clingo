@@ -13,12 +13,13 @@ deduction(mary, 10000, 12000).
 
 &sum{ 0 } =: deduction(P) :- person(P), not deduction(P,_,_).
 &in{ L..H } =: deduction(P) :- deduction(P,L,H).
-&sum{ T } =: rate(P) :- lives(P,R), income(P,I),
-                        T = #max{ T' : rate(R,L,T'), I>=L}.
+rate(P,T) :- lives(P,R), income(P,I),
+             T = #max{ T' : rate(R,L,T'), I>=L}.
 
 1 { lives(P,R) : region(R) } 1 :- person(P).
 
-&sum{ (I-deduction(P))*100/rate(P) } =: tax(P) :- lives(P,R), income(P,I).
+&sum{ T-deduction(P) } =: tax(P) :- income(P,I), rate(P,R),
+                                    T=I*R/100.
 
 &sum{ tax(P) : lives(P,R) } =: total(R) :- region(R).
 
