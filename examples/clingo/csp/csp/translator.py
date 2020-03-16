@@ -16,25 +16,28 @@ class Translator(object):
         '''
         if term.type == clingo.SymbolType.Number:
             return set()
-        elif match(term, "-", 2) or match(term, "+", 2) or match(term, "*", 2) or match(term, "..", 2):
+        if match(term, "-", 2) or match(term, "+", 2) or match(term, "*", 2) or match(term, "..", 2):
             return self.vars(term.arguments[0]).union(self.vars(term.arguments[1]))
-        elif match(term, "-", 1) or match(term, "+", 1):
+        if match(term, "-", 1) or match(term, "+", 1):
             return self.vars(term.arguments[0])
-        elif term.type in (clingo.TheoryTermType.Symbol, clingo.TheoryTermType.Function, clingo.TheoryTermType.Tuple):
+        if term.type in (clingo.TheoryTermType.Symbol, clingo.TheoryTermType.Function, clingo.TheoryTermType.Tuple):
             return {term}
-        else:
-            return set()
+        return set()
 
     def term_to_symbol(self, term):
+        '''
+        Converts theory terms in the form of function symbols to clingo function symbols.
+        '''
         if not term.arguments:
             return clingo.Function(term.name)
-        else:
-            return clingo.Function(term.name, [self.term_to_symbol(arg) for arg in term.arguments])
+        return clingo.Function(term.name, [self.term_to_symbol(arg) for arg in term.arguments])
 
     def _add_defined(self, var, reason):
         with self._backend as backend:
-            self._defined[var] = backend.add_atom(clingo.Function("def", [self.term_to_symbol(var)]))
-            backend.add_rule([self._defined[var]], reason)
+            if var not in self._defined:
+                self._defined[var] = backend.add_atom(clingo.Function("def", [self.term_to_symbol(var)]))
+            defined_lit = self._defined[var]
+            backend.add_rule([defined_lit], reason)
 
     def _define_variables(self):
         for atom in self._theory_atoms:
@@ -54,5 +57,10 @@ class Translator(object):
         pass
 
     def translate(self):
+        '''
+        Translates ASP program with constraint atoms including assignments and conditionals into a Clingcon program.
+        Adds rules implementing definition of variables, assignments, conditional linear constraint atoms and aggregates count, max and min.
+        Returns sum constraints to be added to Clingcon.
+        '''
         self._define_variables()
         self._translate_constraints()
