@@ -35,7 +35,6 @@ THEORY = """\
     .. : 0, binary, left
     };
     &sum/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
-    &count/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
     &max/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
     &min/1 : sum_term, {<=,=,!=,<,>,>=,=:}, sum_term, any;
     &in/1 : dom_term, {=:}, sum_term, head;
