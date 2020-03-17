@@ -224,7 +224,7 @@ class Application(object):
                 transform(b, self._read(path), self.config.shift_constraints)
 
         prg.ground([("base", [])])
-        translator = Translator(prg.theory_atoms, prg.backend())
+        translator = Translator(prg, prg.backend())
         translator.translate()
         prg.cleanup()
 

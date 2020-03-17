@@ -25,4 +25,4 @@ rate(P,T) :- lives(P,R), income(P,I),
 
 min_taxes(P) :- &min{ tax(P') : person(P') } = tax(P), person(P).
 max_taxes(P) :- &max{ tax(P') : person(P') } = tax(P), person(P).
-&count{ lives(P,R) : person(P) } =: inhabitants(R) :- region(R).
+&sum{ 1 : lives(P,R), person(P) } =: inhabitants(R) :- region(R).
