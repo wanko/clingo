@@ -225,7 +225,7 @@ class Application(object):
 
         prg.ground([("base", [])])
         translator = Translator(prg, prg.backend())
-        translator.translate()
+        self._propagator.constraints = translator.translate()
         prg.cleanup()
 
         for model in prg.solve(on_statistics=self._on_statistics, yield_=True):
