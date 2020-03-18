@@ -115,13 +115,6 @@ def parse_theory(builder, theory_atoms):
         is_sum = match(atom.term, "sum", 1)
         is_diff = match(atom.term, "diff", 1)
         if is_sum or is_diff:
-            conditional = False
-            for element in atom.elements:
-                if element.condition:
-                    conditional = True
-                    break
-            if conditional or atom.guard[0] == "=:":
-                continue
             body = match(atom.term.arguments[0], "body", 0)
             _parse_constraint(builder, atom, is_sum, body)
         elif match(atom.term, "distinct", 0):

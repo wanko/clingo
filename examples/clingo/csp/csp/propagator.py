@@ -161,6 +161,7 @@ class Propagator(object):
         self._show = False                 # whether there is a show statement
         self._show_variable = set()        # variables to show
         self._show_signature = set()       # signatures to show
+        self.constraints = set()           # constraints given by the translator
 
     def _state(self, thread_id):
         """
@@ -322,7 +323,11 @@ class Propagator(object):
 
         # add constraints
         builder = ConstraintBuilder(cc, self, minimize)
-        parse_theory(builder, init.theory_atoms)
+        if len(self.constraints) == 0:
+            parse_theory(builder, init.theory_atoms)
+        else:
+            parse_theory(builder, self.constraints)
+
 
         # gather bounds of states in master
         master = self._state(0)
