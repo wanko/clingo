@@ -11,7 +11,7 @@ income(paul,   60000).
 income(mary,  120000).
 deduction(mary, 10000, 12000).
 
-&sum{ 0 } =: deduction(P) :- person(P), not deduction(P,_,_).
+%&sum{ 0 } =: deduction(P) :- person(P), not deduction(P,_,_).
 &in{ L..H } =: deduction(P) :- deduction(P,L,H).
 rate(P,T) :- lives(P,R), income(P,I),
              T = #max{ T' : rate(R,L,T'), I>=L}.
@@ -26,3 +26,4 @@ rate(P,T) :- lives(P,R), income(P,I),
 min_taxes(P) :- &min{ tax(P') : person(P') } = tax(P), person(P).
 max_taxes(P) :- &max{ tax(P') : person(P') } = tax(P), person(P).
 &sum{ 1 : lives(P,R), person(P) } =: inhabitants(R) :- region(R).
+
