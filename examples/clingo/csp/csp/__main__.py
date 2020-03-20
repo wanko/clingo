@@ -34,20 +34,39 @@ class Application(object):
         self.occurrences = OrderedDict()
         self.todo = []
 
+    def on_model(self, model):
+        """
+        Report models to the propagator.
+        """
+        self._propagator.on_model(model)
+
     def print_model(self, model, default_printer):
         """
         Print the current model and the assignments of integer variables.
         """
-        default_printer()
+        # pylint: disable=unused-argument
+
+        # Note: the thread specific state is gone here so we have to print
+        # using the model only.
+
+        sys.stdout.write(" ".join(str(symbol) for symbol in sorted(model.symbols(shown=True))))
+        sys.stdout.write("\n")
+
+        cost = None
 
         sys.stdout.write("Valid assignment for constraints found:\n")
         sep = ""
-        for n, v in self._propagator.get_assignment(model.thread_id):
-            sys.stdout.write("{}{}={}".format(sep, n, v))
-            sep = " "
+        for symbol in sorted(model.symbols(theory=True)):
+            if symbol.match("__csp", 2):
+                n, v = symbol.arguments
+                sys.stdout.write("{}{}={}".format(sep, n, v))
+                sep = " "
+            elif symbol.match("__csp_cost", 1):
+                cost = symbol.arguments[0]
         sys.stdout.write("\n")
-        if self._propagator.has_minimize:
-            sys.stdout.write("Cost: {}\n".format(self._propagator.get_minimize_value(model.thread_id)))
+
+        if cost is not None:
+            sys.stdout.write("Cost: {}\n".format(cost))
 
         sys.stdout.flush()
 
@@ -224,10 +243,7 @@ class Application(object):
 
         prg.ground([("base", [])])
 
-        for model in prg.solve(on_statistics=self._on_statistics, yield_=True):
-            if self._propagator.has_minimize:
-                bound = self._propagator.get_minimize_value(model.thread_id)
-                self._propagator.update_minimize(bound-1)
+        prg.solve(on_statistics=self._on_statistics, on_model=self.on_model)
 
 
 if __name__ == "__main__":

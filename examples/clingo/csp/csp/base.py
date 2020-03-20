@@ -63,6 +63,7 @@ class Statistics(object):
         self.translate_clauses = 0
         self.translate_wcs = 0
         self.translate_literals = 0
+        self.cost = None
         self.tstats = []
 
     def reset(self):
@@ -81,6 +82,7 @@ class Statistics(object):
         self.translate_clauses = 0
         self.translate_wcs = 0
         self.translate_literals = 0
+        self.cost = None
         for s in self.tstats:
             s.reset()
 
@@ -100,6 +102,7 @@ class Statistics(object):
         self.translate_clauses += stats.translate_clauses
         self.translate_wcs += stats.translate_wcs
         self.translate_literals += stats.translate_literals
+        self.cost = stats.cost
 
         for _ in range(len(self.tstats), len(stats.tstats)):
             self.tstats.append(ThreadStatistics())

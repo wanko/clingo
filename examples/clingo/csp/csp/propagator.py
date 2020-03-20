@@ -170,6 +170,23 @@ class Propagator(object):
             self._states.append(State(self._l2c, self.config.state_config(thread_id)))
         return self._states[thread_id]
 
+    def on_model(self, model):
+        """
+        Extend the model with the assignment and take care of minimization.
+        """
+        shown = (var for var in self._var_map.items() if self.shown(var))
+        assignment = self._state(model.thread_id).get_assignment(shown)
+        model.extend(
+            clingo.Function("__csp", [var, value])
+            for var, value in assignment if self.shown(var))
+
+        if self.has_minimize:
+            bound = self.get_minimize_value(model.thread_id)
+            model.extend([clingo.Function("__csp_cost", [bound])])
+            if self._minimize_bound is None or bound-1 < self._minimize_bound:
+                self.statistics.cost = bound
+                self.update_minimize(bound-1)
+
     @property
     def statistics(self):
         """
@@ -203,7 +220,10 @@ class Propagator(object):
                 ("Refined reason", tstat.refined_reason),
                 ("Introduced reason", tstat.introduced_reason),
                 ("Literals introduced ", tstat.literals)])
-        stats_map["Clingcon"] = OrderedDict([
+        cost = []
+        if stats.cost is not None:
+            cost.append(("Cost", stats.cost))
+        stats_map["Clingcon"] = OrderedDict(cost + [
             ("Init time in seconds", OrderedDict([
                 ("Total", stats.time_init),
                 ("Simplify", stats.time_simplify),
@@ -408,7 +428,7 @@ class Propagator(object):
         """
         self._state(thread_id).undo()
 
-    def _shown(self, var):
+    def shown(self, var):
         """
         Determine if the given variable should be shown.
         """
@@ -429,7 +449,7 @@ class Propagator(object):
 
         Should be called on total assignments.
         """
-        return self._state(thread_id).get_assignment((var, idx) for var, idx in self._var_map.items() if show_all or self._shown(var))
+        return self._state(thread_id).get_assignment((var, idx) for var, idx in self._var_map.items() if show_all or self.shown(var))
 
     def get_value(self, var, thread_id):
         """
