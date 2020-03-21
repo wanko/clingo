@@ -230,30 +230,41 @@ class Translator(object):
             alpha_lit = backend.add_atom()
             beta_lit = backend.add_atom()
             eq_lit = backend.add_atom()
-            backend.add_rule([], [-def_lit, min_def, atom.literal])
+            backend.add_rule([def_lit], [min_def, atom.literal])
+            backend.add_rule([min_def], [def_lit, atom.literal])
             backend.add_rule([alpha_lit], [min_def, atom.literal])
-            backend.add_rule([], [-beta_lit, min_def, atom.literal])
+            backend.add_rule([beta_lit], [min_def, atom.literal])
             backend.add_rule([eq_lit], [atom.literal])
+        def_elements = []
+        alpha_elements = []
+        beta_elements = []
         for element in atom.elements:
 
             # create element that checks for defindness
             body = []
             for var in self.vars(element.terms[0]):
                 body.append(self._add_defined(var))
+            body.extend([min_def, atom.literal])
             with self._backend as backend:
-                backend.add_rule([def_lit], body)
+                check_lit = backend.add_atom()
+                backend.add_rule([check_lit], body)
+            def_elements.append(ConstraintElement([ONE], None, check_lit))
 
             # create element that checks if value is strictly smaller than minimum
-            check_lit = backend.add_atom()
             with self._backend as backend:
-                backend.add_rule([], [alpha_lit, check_lit])
+                check_lit = backend.add_atom()
             self._translate_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], [">", element.terms[0]], check_lit, SUM_TERM_BODY))
+            alpha_elements.append(ConstraintElement([ONE], None, check_lit))
 
             # create element that checks if value is greater equal than minimum
             with self._backend as backend:
                 check_lit = backend.add_atom()
-                backend.add_rule([beta_lit], [check_lit])
             self._translate_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], ["=", element.terms[0]], check_lit, SUM_TERM_BODY))
+            beta_elements.append(ConstraintElement([ONE], None, check_lit))
+
+        self._translate_constraint(ConstraintAtom(def_elements, [">=", ONE], def_lit, SUM_TERM_HEAD))
+        self._translate_constraint(ConstraintAtom(alpha_elements, ["=", ZERO], alpha_lit, SUM_TERM_HEAD))
+        self._translate_constraint(ConstraintAtom(beta_elements, [">=", ONE], beta_lit, SUM_TERM_HEAD))
         self._translate_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], atom.guard, eq_lit, SUM_TERM_HEAD))
 
     def _translate_in(self, atom):
