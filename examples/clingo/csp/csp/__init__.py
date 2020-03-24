@@ -4,5 +4,5 @@ stand-alone application.
 """
 
 from .propagator import Propagator
-from .translator import Translator
+from .translator import Translator, AUX
 from .parsing import transform, THEORY
