@@ -6,7 +6,7 @@ import sys
 from textwrap import dedent
 from collections import OrderedDict
 import clingo
-from csp import transform, THEORY, Propagator, Translator
+from csp import transform, THEORY, Propagator, Translator, AUX
 
 
 _FALSE = ["0", "no", "false"]
@@ -19,6 +19,8 @@ class AppConfig(object):
     """
     def __init__(self):
         self.shift_constraints = clingo.Flag(True)
+        self.print_aux = clingo.Flag(False)
+        self.print_trans = clingo.Flag(False)
 
 
 class Application(object):
@@ -59,6 +61,8 @@ class Application(object):
         for symbol in sorted(model.symbols(theory=True)):
             if symbol.match("__csp", 2):
                 n, v = symbol.arguments
+                if (not self.config.print_aux and n.name == AUX) or not model.contains(clingo.Function("def", [n])):
+                    continue
                 sys.stdout.write("{}{}={}".format(sep, n, v))
                 sep = " "
             elif symbol.match("__csp_cost", 1):
@@ -200,6 +204,16 @@ class Application(object):
             "Verify state consistency [{}]".format(self._flag_str(conf.check_state)),
             conf.check_state)
 
+        group = "Translation Options"
+        options.add_flag(
+            group, "print-auxvars,@2",
+            "Print value of auxiliary variables [{}]".format(self._flag_str(self.config.print_aux)),
+            self.config.print_aux)
+        options.add_flag(
+            group, "print-translation,@2",
+            "Print translation [{}]".format(self._flag_str(self.config.print_trans)),
+            self.config.print_trans)
+
 
     def validate_options(self):
         """
@@ -243,7 +257,7 @@ class Application(object):
                 transform(b, self._read(path), self.config.shift_constraints)
 
         prg.ground([("base", [])])
-        translator = Translator(prg, prg.backend())
+        translator = Translator(prg, prg.backend(), self.config)
         self._propagator.constraints = translator.translate()
 
         prg.solve(on_statistics=self._on_statistics, on_model=self.on_model)
