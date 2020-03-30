@@ -238,14 +238,13 @@ class Application(object):
                 transform(b, self._read(path), self.config.shift_constraints)
 
         prg.ground([("base", [])])
-        translator = Translator(prg, prg.backend(), self.config)
+        translator = Translator(prg, prg.backend(), self.config, self._propagator.config)
         self._propagator.constraints = translator.translate()
 
         for model in prg.solve(on_statistics=self._on_statistics, yield_=True):
             if self._propagator.has_minimize:
                 bound = self._propagator.get_minimize_value(model.thread_id)
                 self._propagator.update_minimize(bound-1)
-
 
 if __name__ == "__main__":
     sys.exit(int(clingo.clingo_main(Application(), sys.argv[1:])))
