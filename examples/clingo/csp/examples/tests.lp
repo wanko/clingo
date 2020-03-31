@@ -1,3 +1,5 @@
+%*
+% Application taxes
 person(paul;mary).
 region(luxemburg;germany).
 rate(germany,  25000, 15).
@@ -27,3 +29,33 @@ max_taxes(P) :- &max{ tax(P') : person(P') } = tax(P), person(P).
 #show lives/2.
 #show min_taxes/1.
 #show max_taxes/1.
+
+% Standard GZ unsat (theory atom bug)
+&sum{x}=1 :- &sum{ 1 : a }>= 0.
+a :- &sum{x}=1.
+
+% Assignment fact
+&sum{1} =: x.
+&sum{z} =: y.
+
+% Conditional assignment fact
+{a}.
+&sum{z : a; 1} =: x.
+&sum{x} =: y.
+
+% Assignment head, body check
+{a}.
+&sum{1} =: x :- a.
+b :- &sum{x} > 0.
+
+% Conditional linear constraint, head
+{a}.
+&sum{1:a} = x.
+
+*%
+
+% Conditional linear constraint, body
+{a}.
+&sum{1} = x.
+b :- &sum{1:a} < x.
+

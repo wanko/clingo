@@ -238,7 +238,7 @@ class Application(object):
                 transform(b, self._read(path), self.config.shift_constraints)
 
         prg.ground([("base", [])])
-        translator = Translator(prg, prg.backend(), self.config, self._propagator.config)
+        translator = Translator(prg, self.config, self._propagator.config)
         self._propagator.constraints = translator.translate()
 
         for model in prg.solve(on_statistics=self._on_statistics, yield_=True):

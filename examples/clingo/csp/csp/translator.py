@@ -14,10 +14,10 @@ class ConstraintAtom(object):
         self.term = term
 
     def __str__(self):
-        return str(self.term) + "{ " + ", ".join([str(element) for element in self.elements]) + " } " + str(self.guard[0])+ " " + str(self.guard[1])
+        return "&"+str(self.term) + "{ " + "; ".join([str(element) for element in self.elements]) + " } " + str(self.guard[0])+ " " + str(self.guard[1])
 
     def __repr__(self):
-        return str(self.term) + "{ " + ", ".join([str(element) for element in self.elements]) + " } " + str(self.guard[0])+ " " + str(self.guard[1])
+        return str(self)
 
     @staticmethod
     def copy(atom):
@@ -47,7 +47,7 @@ class ConstraintElement(object):
             condition = " : " + str(self.condition)
         elif self.condition_id:
             condition = " : " + str(self.condition_id)
-        return str(self.terms) + condition
+        return ", ".join([str(term) for term in self.terms]) + condition
 
     def __repr__(self):
         return str(self)
@@ -119,9 +119,8 @@ class Translator(object):
     """
     Class that translates ASP program with constraint atoms including assignments and conditionals into a Clingcon program.
     """
-    def __init__(self, prg, backend, appconfig, propconfig):
+    def __init__(self, prg, appconfig, propconfig):
         self._prg = prg
-        self._backend = backend
         self._appconfig = appconfig
         self._propconfig = propconfig
         self._defined = {}
@@ -160,7 +159,7 @@ class Translator(object):
         return var
 
     def _add_atom(self, symbol=None):
-        with self._backend as backend:
+        with self._prg.backend() as backend:
             if symbol:
                 return backend.add_atom(symbol)
             return backend.add_atom()
@@ -181,7 +180,7 @@ class Translator(object):
         return lit
 
     def _add_rule(self, head, body, choice=False):
-        with self._backend as backend:
+        with self._prg.backend() as backend:
             backend.add_rule(head, body, choice)
         if self._appconfig.print_trans:
             head_atoms = []
@@ -274,7 +273,8 @@ class Translator(object):
         type_term = ConstraintTerm(atom.term.name, None, [atom.term.arguments[0]], clingo.TheoryTermType.Function)
         self._translate_constraint(ConstraintAtom(elements, atom.guard, cond_free_lit, type_term))
         self._add_rule([cond_free_lit], [atom.literal])
-        self._add_rule([atom.literal], [cond_free_lit])
+        if match(atom.term.arguments[0], "head", 0):
+            self._add_rule([atom.literal], [cond_free_lit])
 
     def _translate_assignment(self, atom):
         assert len(self.vars(atom.guard[1])) == 1 and not self.conditional(atom)
