@@ -195,7 +195,6 @@ class Application(object):
             "Print translation [{}]".format(self._flag_str(self.config.print_trans)),
             self.config.print_trans)
 
-
     def validate_options(self):
         """
         Validate options.
