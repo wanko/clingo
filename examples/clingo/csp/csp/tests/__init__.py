@@ -4,7 +4,7 @@ Basic functions to run tests.
 
 import collections
 import clingo
-from csp import Propagator, transform, THEORY
+from csp import Propagator, transform, THEORY, Translator
 
 
 ConfGlobalEntry = collections.namedtuple(
@@ -30,6 +30,14 @@ ConfLocalEntry = collections.namedtuple(
 # Note: this should simply contain the opposite of the default config
 CONF_LOCAL = [ConfLocalEntry(False, False, False)]
 
+class AppConfig(object):
+    """
+    Class for application specific options.
+    """
+    def __init__(self):
+        self.shift_constraints = clingo.Flag(True)
+        self.print_aux = clingo.Flag(False)
+        self.print_trans = clingo.Flag(False)
 
 class Solver(object):
     """
@@ -49,7 +57,7 @@ class Solver(object):
         self.prg.register_propagator(self.prp)
         self.prg.add("base", [], THEORY)
 
-    def _parse_model(self, model, optimize):
+    def _parse_model(self, model, optimize=False):
         """
         Combine model and assignment in one list.
         """
@@ -122,6 +130,24 @@ class Solver(object):
         self.step += 1
         return [m + a for m, a in ret]
 
+    def solve_htc(self, s):
+        """
+        Translate and solve program s.
+        """
+        # pylint: disable=unsubscriptable-object,cell-var-from-loop,no-member
+        with self.prg.builder() as b:
+            transform(b, s, True)
+
+        self.prg.ground([("base", [])])
+        translator = Translator(self.prg, AppConfig(), self.prp.config)
+        self.prp.constraints = translator.translate()
+
+
+        ret = []
+        self.prg.solve(on_model=lambda m: ret.append(self._parse_model(m)))
+        ret.sort()
+
+        return [m + a for m, a in ret]
 
 def _solve(solver, s):
     ret = solver.solve(s)
@@ -129,6 +155,9 @@ def _solve(solver, s):
         ret = solver.solve("", False, solver.bound)
     return ret
 
+def _solve_htc(solver, s):
+    ret = solver.solve_htc(s)
+    return ret
 
 def solve(s, minint=-20, maxint=20, threads=8, options=()):
     """
@@ -153,4 +182,12 @@ def solve(s, minint=-20, maxint=20, threads=8, options=()):
             conf.weight_constraint_limit, conf.clause_limit, conf.literals_only, conf.sort_constraints, conf.translate_minimize)
         assert ret == ret_alt, msg
 
+    return ret
+
+def solve_htc(s, minint=-20, maxint=20, threads=8, options=()):
+    """
+    Return all models of HTc program s.
+    """
+    solver = Solver(minint, maxint, threads, options)
+    ret = _solve_htc(solver, s)
     return ret

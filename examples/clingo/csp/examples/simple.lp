@@ -1,4 +1,4 @@
-% Conditional linear constraint, body
-{a}.
-&sum{1} = x.
-b :- &sum{1:a} < x.
+% Conditional maximum body
+{b}.
+&sum{x} = 2.
+a :- &max{1; x:b} <= 1.
