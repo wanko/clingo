@@ -1,0 +1,18 @@
+- without loop formulas we only seem to get supported models
+    von kaminski kaminski an alle:
+    z == &sum{ x } > 1.
+    von kaminski kaminski an alle:
+    z :- def_x, zz.
+    von kaminski kaminski an alle:
+    zz == &sum { x } > 1
+- changed print, main, init functions, options and theory ->
+  one project with options to switch? Several projects?
+- theory atoms were unreachable so I had to copy them
+    Best way to pass them? When are they unreachable?
+- Had unsat when syntactically identical constraints with different literals were added 
+    -> had to check for duplicates
+- fixed undefined to -max_int as 0 is often used -> still problems in combination with domain statements (even with fix above)
+- How to best adapt test environment?
+
+Potassco paper:
+    - Theory tutorial: What is relevant? How to rebuilt clingo-dl section?

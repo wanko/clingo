@@ -1,0 +1,68 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "taxes_grounding",
+            "type": "python",
+            "request": "launch",
+            "program": "/mnt/e/clingo/examples/clingo/csp/csp/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["/mnt/e/clingo/examples/clingo/csp/examples/taxes.lp", "--text"],
+            "cwd": "/mnt/e/clingo/examples/clingo/csp/csp",
+            "env": {
+                "PYTHONPATH" : "${cwd}"
+            }
+        },
+        {
+            "name": "taxes_defined",
+            "type": "python",
+            "request": "launch",
+            "program": "/mnt/e/clingo/examples/clingo/csp/csp/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["/mnt/e/clingo/examples/clingo/csp/examples/taxes.lp", "0"],
+            "cwd": "/mnt/e/clingo/examples/clingo/csp/csp",
+            "env": {
+                "PYTHONPATH" : "${cwd}"
+            }
+        },
+        {
+            "name": "test",
+            "type": "python",
+            "request": "launch",
+            "program": "/mnt/e/clingo/examples/clingo/csp/csp/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["/mnt/e/clingo/examples/clingo/csp/examples/simple.lp", "0"],
+            "cwd": "/mnt/e/clingo/examples/clingo/csp/csp",
+            "env": {
+                "PYTHONPATH" : "${cwd}"
+            }
+        },
+        {
+            "name": "test_cases",
+            "type": "python",
+            "request": "launch",
+            "program": "/mnt/e/clingo/examples/clingo/csp/csp/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["/mnt/e/clingo/examples/clingo/csp/examples/tests.lp", "0"],
+            "cwd": "/mnt/e/clingo/examples/clingo/csp/csp",
+            "env": {
+                "PYTHONPATH" : "${cwd}"
+            }
+        },
+        {
+            "name": "translate",
+            "type": "python",
+            "request": "launch",
+            "program": "/mnt/e/clingo/examples/clingo/csp/csp/__main__.py",
+            "console": "integratedTerminal",
+            "args": ["/mnt/e/clingo/examples/clingo/csp/examples/simple.lp", "--print-translation", "--print-auxvars", "0"],
+            "cwd": "/mnt/e/clingo/examples/clingo/csp/csp",
+            "env": {
+                "PYTHONPATH" : "${cwd}"
+            }
+        }
+    ]
+}
