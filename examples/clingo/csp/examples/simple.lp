@@ -1,4 +1,1 @@
-% Conditional maximum body
-{b}.
-&sum{x} = 2.
-a :- &max{1; x:b} <= 1.
+a :- &min{1:a} > 0.
