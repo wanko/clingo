@@ -341,13 +341,13 @@ class Translator(object):
                 self._add_defined(min_var, body)
             body.append(min_def)
 
-            check_lit = self._add_sum_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], ["<=", element.terms[0]], None, SUM_TERM_HEAD))
-            self._add_rule([check_lit], body)
+            check_lit = self._add_atom()
+            self._add_sum_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], ["<=", element.terms[0]], check_lit, SUM_TERM_BODY))
+            self._add_rule([], [-check_lit])
 
-            check_lit = self._add_sum_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], ["=", element.terms[0]], None, SUM_TERM_BODY))
-            body.append(check_lit)
-            self._add_rule([check_lit], [], True)
-            self._add_rule([beta_lit], body)
+            check_lit = self._add_atom()
+            self._add_sum_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], ["=", element.terms[0]], check_lit, SUM_TERM_BODY))
+            self._add_rule([beta_lit], [check_lit])
         self._add_rule([], [-beta_lit, min_def])
 
         type_term = ConstraintTerm("sum", None, [atom.term.arguments[0]], clingo.TheoryTermType.Function)
