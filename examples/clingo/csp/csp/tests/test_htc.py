@@ -128,6 +128,12 @@ class TestMain(unittest.TestCase):
             """, -10, 10),
             [['a', 'b', 'def(aux(0))', 'def(aux(1))', 'def(x)', ('aux(0)', 1), ('aux(1)', 1), ('x', 1)],
              ['def(aux(0))', 'def(aux(1))', 'def(x)', ('aux(0)', 10), ('aux(1)', 3), ('x', 1)]])
+        self.assertEqual(
+            solve_htc("""\
+            a :- &min{1:a} > 0.
+            """, -10, 10),
+            [])
+
 
     def test_max(self):
         self.assertEqual(

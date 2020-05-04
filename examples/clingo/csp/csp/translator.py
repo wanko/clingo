@@ -352,8 +352,11 @@ class Translator(object):
 
         type_term = ConstraintTerm("sum", None, [atom.term.arguments[0]], clingo.TheoryTermType.Function)
         eq_lit = self._add_sum_constraint(ConstraintAtom([ConstraintElement([min_var], None, None)], atom.guard, None, type_term))
-        self._add_rule([eq_lit], [atom.literal])
-        self._add_rule([atom.literal], [eq_lit])
+        if match(atom.term.arguments[0], "head", 0):
+            self._add_rule([eq_lit], [atom.literal])
+            self._add_rule([atom.literal], [eq_lit])
+        elif match(atom.term.arguments[0], "body", 0):
+            self._add_rule([atom.literal], [eq_lit, min_def])
 
     def _translate_in(self, atom):
         assert not self.conditional(atom) and len(atom.elements) == 1 and atom.guard[0] == "="
