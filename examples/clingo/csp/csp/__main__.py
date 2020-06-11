@@ -253,7 +253,7 @@ class Application(object):
 
         with prg.builder() as b:
             for path in files:
-                transform(b, self._read(path), self.config.shift_constraints)
+                transform(b, self._read(path), False)
 
         prg.ground([("base", [])])
         translator = Translator(prg, self.config, self._propagator.config)
