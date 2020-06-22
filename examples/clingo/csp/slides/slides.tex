@@ -230,11 +230,40 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
  \begin{itemize}
     \item Add auxiliary variable $\mathit{min}$ and for every $e_i$, add following rules where $\{\mathtt{x}_1,\dots,\mathtt{x}_n\}=\vars{e_i}$ 
     \lstinputlisting[linerange={1-3},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/minmax.lp}
-    \item Check whether a correct value was selected and create linear constraint atom
-    \lstinputlisting[linerange={4-},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/minmax.lp}
+    \pause
+    \item Check whether a correct value was selected
+    \lstinputlisting[linerange={4-4},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/minmax.lp}
+   \end{itemize}
+\end{frame}
+
+\begin{frame}{Translating minimum constraints}
+\[\mathtt{\&min}(l)\mathtt{\{}e_1,\dots,e_n\mathtt{\}} \prec k\]
+\pause
+ \begin{itemize}
+    \item If $l=\mathtt{body}$
+    \lstinputlisting[linerange={5-5},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/minmax.lp}
+    \pause
+    \item If $l=\mathtt{head}$
+    \lstinputlisting[linerange={6-7},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/minmax.lp}
+ \end{itemize}
+\end{frame}
+
+\begin{frame}{Translating maximum constraints}
+\[\mathtt{\&max}(l)\mathtt{\{}e_1,\dots,e_n\mathtt{\}} \prec k\]
+translates to
+\[\mathtt{\&min}(l)\mathtt{\{}-e_1,\dots,-e_n\mathtt{\}} \prec' -k\]
+ \begin{itemize}
+    \item If $\prec=\mathtt{<=}$, $\prec'=\mathtt{>=}$
+    \item If $\prec=\mathtt{>=}$, $\prec'=\mathtt{<=}$
+    \item If $\prec=\mathtt{<}$, $\prec'=\mathtt{>}$
+    \item If $\prec=\mathtt{>}$, $\prec'=\mathtt{<}$
+    \item If $\prec=\mathtt{=}$, $\prec'=\mathtt{=}$
  \end{itemize}
 \end{frame}
 
 \section{Demonstration}
+\begin{frame}{Let's do our taxes!}
+  \huge\centering\textcolor{blue}{Demo}
+\end{frame}
 
 \end{document}
