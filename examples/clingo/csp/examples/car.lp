@@ -6,9 +6,7 @@ time(0..n).        step(I,I+1) :- time(I), I < n.
 
 &sum {s(I)} =: s(I') :- not &sum{ s(I') } != s(I), step(I,I').
 
-def_s(I) :- time(I), &sum{s(I); -s(I)}=0.
-
-&sum {p(I)+s(I)} =: p(I') :- def_s(I), step(I,I').
+&sum {p(I)+s(I)} =: p(I') :- step(I,I').
 
 &sum {400000} =: rdpos.
 &sum {90000} =: rdlimit.    %  <<< ADDED <<<
