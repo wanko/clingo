@@ -81,7 +81,7 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
   \pause
   \item Python version of \clingcon\ as solver
   \pause
-  \item Bonus goal: implementation only by adding atoms and rules for each theory atom
+  \item Bonus goal: implementation only by adding atoms and rules for each theory atom via the backend
 \end{itemize}
 \end{frame}
 
@@ -130,7 +130,7 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
     \item Use the abstract syntax tree to mark body and head theory atoms while parsing
     \pause
     \[
-\mathtt{\&}t\mathtt{\{}e_1:c_1,\dots,e_n:c_n\mathtt{\}} \prec k \Rightarrow \mathtt{\&}t\mathtt{(}\mathit{l}\mathtt{)}\mathtt{\{}e_1:c_1,\dots,e_n:c_n\mathtt{\}}\prec k
+\mathtt{\&}t\mathtt{\{}e_1:c_1,\dots,e_n:c_n\mathtt{\}} \prec k\pause \Rightarrow \mathtt{\&}t\mathtt{(}\mathit{l}\mathtt{)}\mathtt{\{}e_1:c_1,\dots,e_n:c_n\mathtt{\}}\prec k
     \]
     where $t$ is the name of the theory atom, $e_i$ are tuples of symbols, $c_i$ are conditions (both non-ground), $k$ is a theory term, $\prec$ is a relation symbol and $l\in\{\mathtt{head},\mathtt{body}\}$ 
     \pause
@@ -152,7 +152,7 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
     \lstinputlisting[linerange={3-3},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/semantics.lp}
        add rule
        \lstinputlisting[linerange={4-4},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/semantics.lp}
-       for every $\mathtt{x} \in \vars{e_1}\cup\dots\cup\vars{e_n}$
+       for every $\mathtt{x} \in \vars{e_1}\cup\dots\cup\vars{e_n}\cup\vars{k}$
    \end{itemize}
 \end{frame}
 
@@ -161,14 +161,13 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
     \lstinputlisting[linerange={8-8},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/semantics.lp} 
     \pause
     \begin{itemize}
-      \item  Introduce linear constraint atom  
-            \lstinputlisting[linerange={5-5},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/semantics.lp}
-            \pause
+      \item Copy the linear constraint and assign it to fresh atom
+           \pause
       \item Do not communicate original linear constraint to \clingcon\ \pause 
       \item Add rules
       \only<4>{\lstinputlisting[linerange={9-12},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/semantics.lp}}
       \only<5>{\lstinputlisting[linerange={13-15},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/semantics.lp}}
-      where $\{\mathtt{x}_1,\dots,\mathtt{x}_n\}=\vars{e_1}\cup\dots\cup\vars{e_n}$
+      where $\{\mathtt{x}_1,\dots,\mathtt{x}_n\}=\vars{e_1}\cup\dots\cup\vars{e_n}\cup\vars{k}$
     \end{itemize}
 \end{frame}
 
@@ -196,9 +195,8 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
     \vspace*{-.3cm}
     \pause
     \begin{itemize}
-  \item For every $e_i:c_i$, introduce auxiliary variable $\mathit{aux}_i$ and add following rules where $\{\mathtt{x}_1,\dots,\mathtt{x}_n\}=\vars{e_i}$
-  \lstinputlisting[linerange={1-5},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/conditional.lp}
-  
+  \item For every $e_i:c_i$, introduce auxiliary variable $\mathit{aux}_i$\pause\ and add following rules where $\{\mathtt{x}_1,\dots,\mathtt{x}_n\}=\vars{e_i}$
+  \small\lstinputlisting[linerange={1-5},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/conditional.lp}
   \pause
   \item Replace conditional terms with respective auxiliary variables
   \small\lstinputlisting[linerange={6-9},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/conditional.lp}
@@ -208,6 +206,16 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
 \begin{frame}{Example: Vicious cycle}
   \only<1>{\lstinputlisting[linerange={1-2},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/vicious.lp}}
   \only<2>{\scriptsize\lstinputlisting[linerange={3-21},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/vicious.lp}}
+\end{frame}
+
+\begin{frame}{Example: Vicious cycle}
+  Value for \texttt{x} is unfounded due to loop through:
+  \scriptsize\lstinputlisting[linerange={23-30},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/vicious.lp}
+\end{frame}
+
+\begin{frame}{Example: Vicious cycle}
+  Value for \texttt{aux(0)} is unfounded due to loop through:
+  \small\lstinputlisting[linerange={31-34},mathescape=true,escapeinside={\#(}{\#)},basicstyle={\ttfamily},language=clingo]{examples/vicious.lp}
 \end{frame}
 
 \section{Translating assignments, range, minimum/maximum constraint}
@@ -253,11 +261,11 @@ $\langle h,t \rangle \models c \text{ if } h\in \den{\eval{h}{t}(c)}$
 translates to
 \[\mathtt{\&min}(l)\mathtt{\{}-e_1,\dots,-e_n\mathtt{\}} \prec' -k\]
  \begin{itemize}
-    \item If $\prec=\mathtt{<=}$, $\prec'=\mathtt{>=}$
-    \item If $\prec=\mathtt{>=}$, $\prec'=\mathtt{<=}$
-    \item If $\prec=\mathtt{<}$, $\prec'=\mathtt{>}$
-    \item If $\prec=\mathtt{>}$, $\prec'=\mathtt{<}$
-    \item If $\prec=\mathtt{=}$, $\prec'=\mathtt{=}$
+    \item If $\prec=$ \texttt{<=}, $\prec'=$ \texttt{>=}
+    \item If $\prec=$ \texttt{>=}, $\prec'=$ \texttt{<=}
+    \item If $\prec=$ \texttt{<}, $\prec'=$ \texttt{>}
+    \item If $\prec=$ \texttt{>}, $\prec'=$ \texttt{<}
+    \item If $\prec=$ \texttt{=}, $\prec'=$ \texttt{=}
  \end{itemize}
 \end{frame}
 

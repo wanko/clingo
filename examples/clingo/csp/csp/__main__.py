@@ -29,8 +29,8 @@ class Application(object):
     problems.
     """
     def __init__(self):
-        self.program_name = "csp"
-        self.version = "1.0"
+        self.program_name = "htc"
+        self.version = "0.1"
         self._propagator = Propagator()
         self.config = AppConfig()
         self.occurrences = OrderedDict()
